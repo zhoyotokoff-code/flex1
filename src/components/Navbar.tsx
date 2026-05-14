@@ -76,7 +76,7 @@ export default function Navbar() {
           
           <Link to="/" className="flex items-center gap-3 group">
             <img 
-              src="/logo.png" 
+              src="https://raw.githubusercontent.com/cripso-zhoyoto/image-hosting/refs/heads/main/flex/logo.png" 
               alt={systemData.settings.logoText || "USED FLEX."} 
               className="w-8 h-8 md:w-10 md:h-10 object-contain"
               referrerPolicy="no-referrer"
