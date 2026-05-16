@@ -20,6 +20,11 @@ export default function Profile() {
   const [dbName, setDbName] = useState('');
   const [dbIcon, setDbIcon] = useState('');
 
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetToken, setResetToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [resetStatus, setResetStatus] = useState<{message: string, error?: boolean} | null>(null);
+
   useEffect(() => {
     if (user) {
       const fetchUserData = async () => {
@@ -72,6 +77,41 @@ export default function Profile() {
   const handleUpdateProfile = async () => {
     await saveUserData({ name: dbName, icon: dbIcon });
     alert('Profile updated successfully!');
+  };
+
+  const handleRequestReset = async () => {
+    try {
+      setResetStatus(null);
+      const res = await fetch('/api/auth/request-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user?.email })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setResetToken(data.token);
+      setResetStatus({ message: 'Reset token generated (simulated email).' });
+    } catch (e: any) {
+      setResetStatus({ message: e.message, error: true });
+    }
+  };
+
+  const handleResetPassword = async () => {
+    try {
+      setResetStatus(null);
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetToken, newPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setResetStatus({ message: data.message });
+      setResetToken('');
+      setNewPassword('');
+    } catch (e: any) {
+      setResetStatus({ message: e.message, error: true });
+    }
   };
 
   const dummyOrders = [
@@ -299,9 +339,20 @@ export default function Profile() {
               </div>
 
               <div className="bg-card p-8 rounded-3xl border border-white/5 space-y-4 relative overflow-hidden">
-                <h3 className="text-lg italic font-serif text-white mb-2">Security & 2FA</h3>
+                <h3 className="text-lg italic font-serif text-white mb-2">Password Reset</h3>
                 <p className="text-sm text-text-secondary max-w-lg mb-6">
-                  You are logging in via Google. Password changes and Two-Factor Authentication (2FA) are managed directly through your Google Account settings.
+                  Initiate a password reset utilizing a secure token.
+                </p>
+                <button 
+                  onClick={() => setShowResetModal(true)}
+                  className="inline-block border border-white/20 hover:border-white px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase transition-colors"
+                >
+                  Reset Password
+                </button>
+                
+                <h3 className="text-lg italic font-serif text-white mb-2 mt-8">Google Security & 2FA</h3>
+                <p className="text-sm text-text-secondary max-w-lg mb-6">
+                  If you log in via Google, primary security and Two-Factor Authentication (2FA) are managed directly through your Google Account settings.
                 </p>
                 <a 
                   href="https://myaccount.google.com/security" 
@@ -311,7 +362,7 @@ export default function Profile() {
                 >
                   Manage on Google
                 </a>
-                <ShieldAlert className="absolute -bottom-4 -right-4 w-48 h-48 opacity-[0.03]" />
+                <ShieldAlert className="absolute -bottom-4 -right-4 w-48 h-48 opacity-[0.03] pointer-events-none" />
               </div>
 
               <div className="bg-red-500/10 p-8 rounded-3xl border border-red-500/20 space-y-4">
@@ -335,6 +386,80 @@ export default function Profile() {
 
         </div>
       </div>
+
+      {/* Password Reset Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 sm:p-12">
+          <div 
+            onClick={() => setShowResetModal(false)}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative w-full max-w-md bg-[#1c1b1b] border border-white/10 rounded-3xl p-8"
+          >
+            <h2 className="text-2xl font-serif italic text-white mb-2">Reset Password</h2>
+            <p className="text-sm text-text-secondary mb-6">Initiate a secure password reset flow.</p>
+            
+            {resetStatus && (
+              <p className={`text-xs mb-4 p-3 rounded-lg ${resetStatus.error ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
+                {resetStatus.message}
+              </p>
+            )}
+
+            {!resetToken ? (
+              <button 
+                onClick={handleRequestReset}
+                className="w-full bg-white text-black px-6 py-4 rounded-full text-xs font-bold tracking-widest uppercase hover:scale-105 transition-transform"
+              >
+                Request Reset Token
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] uppercase font-bold tracking-widest text-text-secondary mb-2 block">Reset Token</label>
+                  <input 
+                    type="text" 
+                    value={resetToken}
+                    onChange={(e) => setResetToken(e.target.value)}
+                    placeholder="Paste reset token here"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-white outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold tracking-widest text-text-secondary mb-2 block">New Password</label>
+                  <input 
+                    type="password" 
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-white outline-none"
+                  />
+                </div>
+                <button 
+                  onClick={handleResetPassword}
+                  className="w-full bg-white text-black px-6 py-4 rounded-full text-xs font-bold tracking-widest uppercase hover:scale-105 transition-transform"
+                >
+                  Confirm Reset
+                </button>
+              </div>
+            )}
+            
+            <button 
+              onClick={() => {
+                setShowResetModal(false);
+                setResetToken('');
+                setResetStatus(null);
+              }}
+              className="mt-6 w-full text-center text-xs text-text-secondary uppercase tracking-widest hover:text-white transition-colors"
+            >
+              Close
+            </button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

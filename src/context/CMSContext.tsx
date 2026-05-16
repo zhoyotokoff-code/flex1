@@ -42,10 +42,14 @@ export const DEFAULT_SYSTEM_DATA = {
   ],
   footer: {
     aboutText: 'Redefining modern masculinity with luxury streetwear and precision tailoring. Style starts at 7\'O Clock.',
-    copyright: '© 2024 USED FLEX. SHEETS TEAM . All Rights Reserved.'
+    copyright: '© 2024 USED FLEX. SHEETS TEAM . All Rights Reserved.',
+    instagram: '',
+    facebook: '',
+    twitter: '',
+    youtube: ''
   },
   seo: {
-    homeTitle: "7'O CLOCK MENS FASHION",
+    homeTitle: "USED FLEX. SHEETS MARKET",
     homeDescription: "Redefining modern masculinity with luxury streetwear and precision tailoring.",
     homeOgImage: "https://images.unsplash.com/photo-1550614000-4b95d4ebfa88",
     productTitleSuffix: " | USED FLEX."
@@ -88,6 +92,7 @@ interface CMSContextType {
   deleteProduct: (id: string) => Promise<void>;
   stores: typeof INITIAL_STORES;
   updateStore: (store: any) => Promise<void>;
+  deleteStore: (id: string) => Promise<void>;
   orders: Order[];
   updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
 }
@@ -302,12 +307,25 @@ export function CMSProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const deleteStore = async (id: string) => {
+    // Optimistic update
+    const newStores = stores.filter(s => s.id !== id);
+    setStores(newStores);
+    localStorage.setItem('archive_stores', JSON.stringify(newStores));
+
+    try {
+      await deleteDoc(doc(db, 'stores', id));
+    } catch (e) {
+      console.warn("Firebase deleteStore failed, relying on local state.", e);
+    }
+  };
+
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
       await setDoc(doc(db, 'orders', orderId), { status }, { merge: true });
   };
 
   return (
-    <CMSContext.Provider value={{ systemData, updateSystemData, loading, products, updateProduct, deleteProduct, stores, updateStore, orders, updateOrderStatus }}>
+    <CMSContext.Provider value={{ systemData, updateSystemData, loading, products, updateProduct, deleteProduct, stores, updateStore, deleteStore, orders, updateOrderStatus }}>
       {children}
     </CMSContext.Provider>
   );

@@ -54,9 +54,9 @@ export default function Home() {
   return (
     <div className="overflow-hidden">
       <Helmet>
-        <title>{systemData.seo?.homeTitle || "7'O CLOCK MENS FASHION"}</title>
+        <title>{systemData.seo?.homeTitle || "USED FLEX. SHEETS MARKET"}</title>
         <meta name="description" content={systemData.seo?.homeDescription || "Redefining modern masculinity with luxury streetwear."} />
-        <meta property="og:title" content={systemData.seo?.homeTitle || "7'O CLOCK MENS FASHION"} />
+        <meta property="og:title" content={systemData.seo?.homeTitle || "USED FLEX. SHEETS MARKET"} />
         <meta property="og:description" content={systemData.seo?.homeDescription || "Redefining modern masculinity with luxury streetwear."} />
         <meta property="og:image" content={systemData.seo?.homeOgImage || systemData.hero.backgroundImage} />
       </Helmet>

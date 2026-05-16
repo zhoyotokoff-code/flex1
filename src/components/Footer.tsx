@@ -16,18 +16,26 @@ export default function Footer() {
             {systemData.footer?.aboutText || "Redefining modern masculinity with luxury streetwear and precision tailoring. Style starts at 7'O Clock."}
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="p-3 bg-card rounded-full hover:bg-white hover:text-black transition-all">
-              <Instagram size={20} />
-            </a>
-            <a href="#" className="p-3 bg-card rounded-full hover:bg-white hover:text-black transition-all">
-              <Facebook size={20} />
-            </a>
-            <a href="#" className="p-3 bg-card rounded-full hover:bg-white hover:text-black transition-all">
-              <Twitter size={20} />
-            </a>
-            <a href="#" className="p-3 bg-card rounded-full hover:bg-white hover:text-black transition-all">
-              <Youtube size={20} />
-            </a>
+            {systemData.footer?.instagram && (
+              <a href={systemData.footer.instagram} target="_blank" rel="noopener noreferrer" className="p-3 bg-card rounded-full hover:bg-white hover:text-black transition-all">
+                <Instagram size={20} />
+              </a>
+            )}
+            {systemData.footer?.facebook && (
+              <a href={systemData.footer.facebook} target="_blank" rel="noopener noreferrer" className="p-3 bg-card rounded-full hover:bg-white hover:text-black transition-all">
+                <Facebook size={20} />
+              </a>
+            )}
+            {systemData.footer?.twitter && (
+              <a href={systemData.footer.twitter} target="_blank" rel="noopener noreferrer" className="p-3 bg-card rounded-full hover:bg-white hover:text-black transition-all">
+                <Twitter size={20} />
+              </a>
+            )}
+            {systemData.footer?.youtube && (
+              <a href={systemData.footer.youtube} target="_blank" rel="noopener noreferrer" className="p-3 bg-card rounded-full hover:bg-white hover:text-black transition-all">
+                <Youtube size={20} />
+              </a>
+            )}
           </div>
         </div>
 

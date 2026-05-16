@@ -5,7 +5,7 @@ import {
   ShoppingBag, 
   Users, 
   MessageSquare, 
-  Store, 
+  Store as StoreIcon, 
   Settings, 
   Plus, 
   Search,
@@ -24,7 +24,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { Product } from '../types';
+import { Product, Store } from '../types';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -37,7 +37,7 @@ export default function Admin() {
   const [newStore, setNewStore] = useState<Partial<Store>>({
     name: '', location: '', image: '', whatsapp: '', specialties: [], mapUrl: ''
   });
-  const { systemData, updateSystemData, products, stores, updateProduct, deleteProduct, updateStore, orders, updateOrderStatus } = useCMS();
+  const { systemData, updateSystemData, products, stores, updateProduct, deleteProduct, updateStore, deleteStore, orders, updateOrderStatus } = useCMS();
   const [isSaved, setIsSaved] = useState(false);
 
   const [catInput, setCatInput] = useState('');
@@ -132,7 +132,7 @@ export default function Admin() {
     { id: 'categories', icon: LayoutDashboard, label: 'Categories' },
     { id: 'curation', icon: Settings, label: 'Home Curation' },
     { id: 'reviews', icon: MessageSquare, label: 'Reviews' },
-    { id: 'stores', icon: Store, label: 'Storefronts' },
+    { id: 'stores', icon: StoreIcon, label: 'Storefronts' },
     { id: 'leads', icon: MessageSquare, label: 'WhatsApp Queue' },
     { id: 'settings', icon: Settings, label: 'General Settings' },
     { id: 'content', icon: LayoutDashboard, label: 'Page Content' },
@@ -248,6 +248,20 @@ export default function Admin() {
         <AnimatePresence mode="wait">
           {activeTab === 'dashboard' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} key="dashboard" className="space-y-10">
+              <div className="flex justify-between items-center bg-[#1c1b1b] p-6 rounded-[2rem] border border-white/5">
+                 <p className="text-text-secondary text-xs uppercase tracking-widest">Analytics Interface</p>
+                 <button 
+                   onClick={() => {
+                     if(confirm("Are you sure you want to reset all analytics and orders? This action cannot be undone.")) {
+                       localStorage.setItem('archive_orders_v2', JSON.stringify([]));
+                       window.location.reload();
+                     }
+                   }}
+                   className="px-6 py-3 bg-red-500/10 text-red-500 hover:bg-red-500/20 text-[10px] uppercase font-bold tracking-widest rounded-full transition-all"
+                 >
+                   Reset Analytics
+                 </button>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 {stats.map((stat) => (
                   <div key={stat.label} className="bg-[#1c1b1b] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
@@ -814,6 +828,16 @@ export default function Admin() {
                       >
                         <Settings size={18} />
                       </button>
+                      <button 
+                        onClick={() => {
+                          if(confirm("Are you sure you want to delete this store?")) {
+                            deleteStore(store.id);
+                          }
+                        }}
+                        className="p-4 bg-white/5 border border-white/10 rounded-full hover:bg-red-500/20 text-red-500 transition-all"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                    </div>
                 </div>
               ))}
@@ -1269,6 +1293,39 @@ export default function Admin() {
                         onChange={(e) => handleSystemUpdate('footer', 'copyright', e.target.value)}
                         className="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl text-xs text-white focus:border-white outline-none"
                       />
+                    </div>
+                    <div>
+                      <h4 className="text-[9px] uppercase font-bold tracking-[0.3em] text-text-secondary mb-3 block">Social Links</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input 
+                          type="text"
+                          placeholder="Instagram URL"
+                          value={systemData.footer?.instagram || ''}
+                          onChange={(e) => handleSystemUpdate('footer', 'instagram', e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl text-xs text-white focus:border-white outline-none"
+                        />
+                        <input 
+                          type="text"
+                          placeholder="Facebook URL"
+                          value={systemData.footer?.facebook || ''}
+                          onChange={(e) => handleSystemUpdate('footer', 'facebook', e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl text-xs text-white focus:border-white outline-none"
+                        />
+                        <input 
+                          type="text"
+                          placeholder="Twitter URL"
+                          value={systemData.footer?.twitter || ''}
+                          onChange={(e) => handleSystemUpdate('footer', 'twitter', e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl text-xs text-white focus:border-white outline-none"
+                        />
+                        <input 
+                          type="text"
+                          placeholder="YouTube URL"
+                          value={systemData.footer?.youtube || ''}
+                          onChange={(e) => handleSystemUpdate('footer', 'youtube', e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl text-xs text-white focus:border-white outline-none"
+                        />
+                      </div>
                     </div>
                   </div>
                </div>
